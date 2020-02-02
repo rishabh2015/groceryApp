@@ -37,6 +37,7 @@ const Routes = () => {
         <Route path="/seller/register_login" exact component={Auth(RegisterLogin,false)}/>
         <Route path="/seller/shop" exact component={Auth(Shop,null)}/>
         <Route path="/vendor" exact component = {VendorApp} />
+        <Route path="/vendor/payment" exact component={VendorApp} />
         <Route path="/" exact component={Auth(Home,null)}/>
       
       </Switch>

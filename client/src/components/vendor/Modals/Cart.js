@@ -1,7 +1,12 @@
-export default class Cart {
+    import { addToCart, removeCartItem } from "../../../actions/user_actions.js"; 
+    
+    
+    export default class Cart {
     constructor() {
-        this.productList = []; 
+        this.productList = [];
+        this.dbProductList = []; 
     }
+    
 
     addItem=(product)=> {
         this.productList.push(product);

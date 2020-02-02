@@ -5,16 +5,18 @@ import {
     GET_BRANDS,
     ADD_BRAND,
     GET_CATEGORIES,
+    GET_SUBCATERIES,
     ADD_CATEGORY,
     GET_PRODUCTS_TO_SHOP,
     ADD_PRODUCT,
     CLEAR_PRODUCT,
     GET_PRODUCT_DETAIL,
     CLEAR_PRODUCT_DETAIL,
-    ADD_SUB_CATEGORY
+    ADD_SUB_CATEGORY,
+    GET_MICRO_CATEGORIES
 } from './types';
 
-import { PRODUCT_SERVER } from '../components/utils/misc';
+import { PRODUCT_SERVER, CATEGORY_SERVER } from '../components/utils/misc';
 
 
 
@@ -131,7 +133,6 @@ export function addBrand(dataToSubmit, existingBrands){
     const request = axios.post(`${PRODUCT_SERVER}/brand`,dataToSubmit)
     .then(response=>{
         let brands = [
-            ...existingBrands,
             response.data.brand
         ];
         return {
@@ -150,7 +151,7 @@ export function addCategory(dataToSubmit, existingCategories){
     const request = axios.post(`${PRODUCT_SERVER}/category`,dataToSubmit)
     .then(response=>{
         let categories = [
-            ...existingCategories,
+           
             response.data.category
         ];
         return {
@@ -165,10 +166,10 @@ export function addCategory(dataToSubmit, existingCategories){
 }
 
 export function addSubCategory(dataToSubmit, existingCategories){
-    const request = axios.post(`${PRODUCT_SERVER}/subcategory`,dataToSubmit)
+    const request = axios.post(`${CATEGORY_SERVER}/subcategory`,dataToSubmit)
     .then(response=>{
+    
         let categories = [
-            ...existingCategories,
             response.data.category
         ];
         return {
@@ -182,6 +183,26 @@ export function addSubCategory(dataToSubmit, existingCategories){
     }
 }
 
+export function getSubCategories(){
+    const request = axios.get(`${CATEGORY_SERVER}/subcategories`)
+    .then(response => response.data);
+
+    return {
+        type: GET_SUBCATERIES,
+        payload: request
+    }
+}
+
+
+export function getMicroCategories(){
+    const request = axios.get(`${CATEGORY_SERVER}/subsubcategories`)
+    .then(response => response.data);
+
+    return {
+        type: GET_MICRO_CATEGORIES,
+        payload: request
+    }
+}
 
 export function getCategories(){
     const request = axios.get(`${PRODUCT_SERVER}/categories`)

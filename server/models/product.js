@@ -13,6 +13,11 @@ const productSchema = mongoose.Schema({
         type: String,
         maxlength:100000
     },
+    oldprice:{
+        required: true,
+        type: Number,
+        maxlength: 255
+    },
     price:{
         required: true,
         type: Number,
@@ -36,9 +41,24 @@ const productSchema = mongoose.Schema({
         ref: 'Category',
         required: true
     },
+    subcategory:{
+      type: Schema.Types.ObjectId,
+      ref:'SubCategory',
+      required: true
+    },
+    subsubcategory:{
+      type: Schema.Types.ObjectId,
+      ref:'SubSubCategory',
+      required: true
+    },
     cases:{
         required: true,
         type: Number
+    },
+    discount:{
+        type:Number,
+        maxLength: 100,
+        default: 0
     },
     sold:{
         type: Number,

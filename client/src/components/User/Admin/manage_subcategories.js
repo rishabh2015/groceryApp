@@ -4,7 +4,7 @@ import FormField from '../../utils/Form/formfield';
 import { update, generateData, isFormValid,resetFields,populateOptionFields} from '../../utils/Form/formActions';
 
 import { connect } from 'react-redux';
-import { getCategories,addCategory } from '../../../actions/products_actions';
+import { getSubCategories,addSubCategory } from '../../../actions/products_actions';
 
 class ManageSubCategories extends Component {
 
@@ -54,8 +54,12 @@ class ManageSubCategories extends Component {
         componentDidMount(){
         const formdata = this.state.formdata;
 
-        this.props.dispatch(getCategories()).then( response => {
-            const newFormData = populateOptionFields(formdata,this.props.products.categories,'category');
+        this.props.dispatch(getSubCategories()).then( response => {
+            console.log("response", response);
+            console.log("props in here", this.props);
+            let subcategories = [];
+            response.payload.forEach((item)=>{subcategories.push(item)});
+            const newFormData = populateOptionFields(formdata,subcategories,'category');
             this.updateFields(newFormData)
         })
     }
@@ -88,13 +92,14 @@ class ManageSubCategories extends Component {
 
     submitForm= (event) =>{
         event.preventDefault();
-        
+        console.log("state in here", this.state);
         let dataToSubmit = generateData(this.state.formdata,'categories');
         let formIsValid = isFormValid(this.state.formdata,'categories')
         let existingCategories = this.props.products.categories;
+        console.log("data to submit", dataToSubmit);
 
         if(formIsValid){
-            this.props.dispatch(addCategory(dataToSubmit,existingCategories)).then(response=>{
+            this.props.dispatch(addSubCategory(dataToSubmit,existingCategories)).then(response=>{
                 if(response.payload.success){
                     this.resetFieldsHandler();
                 }else{
@@ -112,7 +117,7 @@ class ManageSubCategories extends Component {
     render() {
         return (
             <div className="admin_category_wrapper">
-            <h1>Categories</h1>
+            <h1>Add categories of subcategories</h1>
             <div className="admin_two_column">
                 
                 <div className="right">
@@ -137,20 +142,13 @@ class ManageSubCategories extends Component {
                         </div>
                         : null}
                     <button className="primaryButton" onClick={(event) => this.submitForm(event)}>
-                        Add category
+                        Add Micro Categories 
                     </button>
 
                 </form>
 
                 </div>
 
-            </div>
-            <div className="">
-            <div className="left">
-                    <div className="brands_container">
-                        {this.showCategoryItems()}
-                    </div>
-                </div>
             </div>
         </div>
         );

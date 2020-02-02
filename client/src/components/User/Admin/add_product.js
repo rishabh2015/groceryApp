@@ -6,7 +6,7 @@ import { update, generateData, isFormValid, populateOptionFields, resetFields} f
 import FileUpload from '../../utils/Form/fileupload';
 
 import { connect } from 'react-redux';
-import { getBrands, getCategories, addProduct, clearProduct } from '../../../actions/products_actions';
+import { getBrands, getCategories, addProduct, clearProduct, getSubCategories, getMicroCategories } from '../../../actions/products_actions';
 
 
 class AddProduct extends Component {
@@ -57,6 +57,23 @@ class AddProduct extends Component {
                     name: 'price_input',
                     type: 'number',
                     placeholder: 'Enter your price'
+                },
+                validation:{
+                    required: true
+                },
+                valid: false,
+                touched: false,
+                validationMessage:'',
+                showlabel: true
+            },
+            discount: {
+                element: 'input',
+                value: '',
+                config:{
+                    label: 'Discount Percentage',
+                    name: 'discount_input',
+                    type: 'number',
+                    placeholder: 'Enter your discount percetage'
                 },
                 validation:{
                     required: true
@@ -136,11 +153,43 @@ class AddProduct extends Component {
                 validationMessage:'',
                 showlabel: true
             },
+            subcategory: {
+                element: 'select',
+                value: '',
+                config:{
+                    label: 'Grocery sub category',
+                    name: 'sub_category_input',
+                    options:[]
+                },
+                validation:{
+                    required: true
+                },
+                valid: false,
+                touched: false,
+                validationMessage:'',
+                showlabel: true
+            },
+            subsubcategory: {
+                element: 'select',
+                value: '',
+                config:{
+                    label: 'Grocery sub sub category',
+                    name: 'sub_sub_category_input',
+                    options:[]
+                },
+                validation:{
+                    required: true
+                },
+                valid: false,
+                touched: false,
+                validationMessage:'',
+                showlabel: true
+            },
             cases: {
                 element: 'select',
                 value: '',
                 config:{
-                    label: 'Case size',
+                    label: 'Units Available',
                     name: 'cases_input',
                     options:[
                         {key:1,value:1},
@@ -250,6 +299,24 @@ class AddProduct extends Component {
             this.updateFields(newFormData)
         })
 
+        this.props.dispatch(getSubCategories()).then( response => {
+            console.log("response", response);
+            console.log("props in here", this.props);
+            let subcategories = [];
+            response.payload.forEach((item)=>{subcategories.push(item)});
+            const newFormData = populateOptionFields(formdata,subcategories,'subcategory');
+            this.updateFields(newFormData)
+        })
+
+        this.props.dispatch(getMicroCategories()).then( response => {
+            console.log("response", response);
+            console.log("props in here", this.props);
+            let subcategories = [];
+            response.payload.forEach((item)=>{subcategories.push(item)});
+            const newFormData = populateOptionFields(formdata,subcategories,'subsubcategory');
+            this.updateFields(newFormData)
+        })
+
         this.props.dispatch(getCategories()).then( response => {
             const newFormData = populateOptionFields(formdata,this.props.products.categories,'category');
             this.updateFields(newFormData)
@@ -298,6 +365,11 @@ class AddProduct extends Component {
                             formdata={this.state.formdata.price}
                             change={(element) => this.updateForm(element)}
                         />
+                        <FormField
+                            id={'discount'}
+                            formdata={this.state.formdata.discount}
+                            change={(element) => this.updateForm(element)}
+                        />
 
                         <div className="form_devider"></div>
 
@@ -324,6 +396,18 @@ class AddProduct extends Component {
                         <FormField
                             id={'category'}
                             formdata={this.state.formdata.category}
+                            change={(element) => this.updateForm(element)}
+                        />
+
+                        <FormField
+                            id={'subcategory'}
+                            formdata={this.state.formdata.subcategory}
+                            change={(element) => this.updateForm(element)}
+                        />
+
+                        <FormField
+                            id={'subsubcategory'}
+                            formdata={this.state.formdata.subsubcategory}
                             change={(element) => this.updateForm(element)}
                         />
 

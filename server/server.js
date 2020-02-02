@@ -74,6 +74,8 @@ app.post('/api/product/shop',(req,res)=>{
     find(findArgs).
     populate('brand').
     populate('category').
+    populate('subcategory').
+    populate('subsubcategory').
     sort([[sortBy,order]]).
     skip(skip).
     limit(limit).
@@ -101,6 +103,8 @@ app.get('/api/product/articles',(req,res)=>{
     find().
     populate('brand').
     populate('category').
+    populate('subcategory').
+    populate('subsubcategory').
     sort([[sortBy,order]]).
     limit(limit).
     exec((err,articles)=>{
@@ -134,6 +138,10 @@ app.get('/api/product/articles_by_id',(req,res)=>{
 
 
 app.post('/api/product/article',auth,admin,(req,res)=>{
+    console.log(req.body);
+    let price = req.body.price;
+    req.body.oldprice = price;
+    req.body.price = req.body.price - (req.body.price * (req.body.discount))/100;
     const product = new Product(req.body);
 
     product.save((err,doc)=>{
@@ -148,17 +156,91 @@ app.post('/api/product/article',auth,admin,(req,res)=>{
 //=================================
 //           CATEGORIES
 //=================================
+function getCategoryById(idval, Modal, failcallBack, sucessCallback){
+    console.log("item name to be found",idval);
+    Modal.findOne({_id:idval}, (err, item)=>{
+        if(err){failcallBack();}
+        if(item){
+            console.log("item found", item);
+            sucessCallback(item);
+        }
+        else{
+            console.log("item not found");
+            failcallBack();
+        }
+    })
+
+}
+
+
+function getCategoryByName(nameval, Modal, failcallBack, sucessCallback){
+    console.log("item name to be found",nameval);
+    Modal.findOne({name:nameval}, (err, item)=>{
+        if(err){failcallBack();}
+        if(item){
+            console.log("item found", item);
+            sucessCallback(item);
+        }
+        else{
+            console.log("item not found");
+            failcallBack();
+        }
+    })
+
+}
 
 app.post('/api/product/category',auth,admin,(req,res)=>{
-    const category = new Category(req.body);
-
-    category.save((err,doc)=>{
-        if(err) return res.json({success:false,err});
-        res.status(200).json({
-            success: true,
-            category: doc
-        })
-    })
+    const categoryName = req.body.name;
+    
+    const subcategoryName = req.body.childCategoryName;
+    let subcategory = getCategoryByName(subcategoryName, SubCategory,()=>{
+           let subcategory = new SubCategory({name:subcategoryName});
+            subcategory.save((err,doc)=>{
+                if(err) return res.json({success: false,err});
+                let subcategories = [];subcategories.push(subcategory);
+                let category = getCategoryByName(categoryName, Category,()=>{category = new Category({name:categoryName, subCategories:subcategories});
+                category.save((err,doc)=>{
+                    if(err) return res.json({success:false,err});
+                    res.status(200).json({
+                        success: true,
+                        category: doc
+                    })
+                })},(category)=>{
+                    category.subCategories.push(subcategory);
+                    Category.update({_id:category._id}, {$push:{subCategories:subcategory}},(err,category)=>{
+                        if(err) return res.json({success:false,err});
+                        res.status(200).json({
+                            success: true,
+                            category: category
+                        })
+                    })
+                });  
+            })
+           
+        
+    },()=>{
+        let subcategories = [];subcategories.push(subcategory);
+        let category = getCategoryByName(categoryName, Category,()=>{category = new Category({name:categoryName, subCategories:subcategories});
+        category.save((err,doc)=>{
+            if(err) return res.json({success:false,err});
+            res.status(200).json({
+                success: true,
+                category: doc
+            })
+        })},(category)=>{
+            category.subCategories.push(subcategory);
+            Category.update({_id:category._id}, {$push:{subCategories:subcategory}},(err,category)=>{
+                if(err) return res.json({success:false,err});
+                res.status(200).json({
+                    success: true,
+                    category: category
+                })
+            })
+        });
+    
+    });
+   
+    
 });
 
 app.get('/api/product/categories',(req,res)=>{
@@ -175,12 +257,20 @@ app.get('/api/product/categories',(req,res)=>{
 
 app.post('/api/category/subcategory',auth,admin,(req,res)=>{
     const category = new SubCategory(req.body);
-
-    category.save((err,doc)=>{
-        if(err) return res.json({success:false,err});
-        res.status(200).json({
+    console.log("request body in here", req.body);
+    const subcategoryId = req.body.category;
+    let subcategory = getCategoryById(subcategoryId,SubCategory,()=>{},(subcategory)=>{
+        let subsubcategory = new SubSubCategory({name:req.body.name});
+        subsubcategory.save((err, doc)=>{
+            if(err) return res.status(400).send(err);
+            
+        SubCategory.update({_id: subcategory._id},{$push:{SubSubCategory:subsubcategory}}, (err, subcategory)=>{
+         if(err) return res.status(400).send(err);
+         res.status(200).json({
             success: true,
-            category: doc
+            category: category
+        })
+        })    
         })
     })
 });
@@ -208,7 +298,7 @@ app.post('/api/category/subsubcategory',auth,admin,(req,res)=>{
     })
 });
 
-app.get('/api/category/subcategories',(req,res)=>{
+app.get('/api/category/subsubcategories',(req,res)=>{
     SubSubCategory.find({},(err,categories)=>{
         if(err) return res.status(400).send(err);
         res.status(200).send(categories)
@@ -222,13 +312,21 @@ app.get('/api/category/subcategories',(req,res)=>{
 app.post('/api/product/brand',auth,admin,(req,res)=>{
     const brand = new Brand(req.body);
 
-    brand.save((err,doc)=>{
-        if(err) return res.json({success:false,err});
-        res.status(200).json({
-            success:true,
-            brand: doc
-        })
+    let categoryId = req.body.category;
+    let subCategory = getCategoryById(categoryId, SubSubCategory, ()=>{}, (subcategory)=>{
+
+        SubSubCategory.update({_id:subcategory._id},{$push:{brands:brand}},(err, doc)=>{
+        if(err) return res.json({success: false, err});    
+        brand.save((err,doc)=>{
+            if(err) return res.json({success:false,err});
+            res.status(200).json({
+                success:true,
+                brand: doc
+            })
+        })    
     })
+    })
+    
 })
 
 app.get('/api/product/brands', (req, res) => {
@@ -331,9 +429,10 @@ app.get('/api/users/removeimage',auth,admin,(req,res)=>{
 
 
 app.post('/api/users/addToCart',auth,(req,res)=>{
-
+     
     User.findOne({_id: req.user._id},(err,doc)=>{
         let duplicate = false;
+        console.log("docs user", doc);
 
         doc.cart.forEach((item)=>{
             if(item.id == req.query.productId){

@@ -35,6 +35,7 @@ import { withRouter, Link } from "react-router-dom";
 
 	componentWillReceiveProps(nextProps)
 	{
+		console.log("nextprops cart", nextProps.cart);
      if (nextProps.cart && nextProps.cart.totalItemsInCart() != this.state.itemCount){
 		let cart = nextProps.cart;
 		this.setState({itemCount: cart.totalItemsInCart()});
@@ -203,10 +204,4 @@ import { withRouter, Link } from "react-router-dom";
     }
 }
 
-function mapStateToProps(state){
-	return {
-		user: state.user
-		
-	}
-  }
-export default connect(mapStateToProps)(withRouter(HeaderComponent));
+export default withRouter(HeaderComponent);

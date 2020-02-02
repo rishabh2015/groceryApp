@@ -1,19 +1,17 @@
 const mongoose = require('mongoose');
 
+var subsubCategory = require("./brand.js"),
+    subsubcategorySchema = mongoose.model("Brand").schema;
+
 const subcategorySchema = mongoose.Schema({
-    parentCategoryName:{
-        required: true,
-        type: String,
-        unique: 1,
-        maxlength: 100
-    },
 
     name:{
         required: true,
         type: String,
-        unique: 1,
+        unique: 0,
         maxlength: 100
-    }
+    },
+    brands:[subsubcategorySchema]
 });
 
 const SubSubCategory = mongoose.model('SubSubCategory',subcategorySchema);

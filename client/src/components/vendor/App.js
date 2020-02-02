@@ -1,6 +1,7 @@
 import React from 'react';
 import "./assets/styles/main.css";
 import DashBoardComponent from './modules/DashBoard/DashBoardComponent';
+import PaymentComponent from "./modules/Payment/PaymentComponent";
 
 
 
@@ -36,10 +37,19 @@ export default class VendorApp extends React.Component{
   
   render(){
     var { isMobileFlag, cart, updateCart } = this.props;
-    
+
+    if(window.location.href.indexOf("payment") != -1)
+    {
+      return(
+        <PaymentComponent cart={cart}  />
+      );
+
+    }
+    else{
     return(
     <DashBoardComponent cart={cart} updateCart={updateCart} isMobileFlag={isMobileFlag} />
     );
+  }
   }
 }
 

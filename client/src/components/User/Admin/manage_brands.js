@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
 import FormField from '../../utils/Form/formfield';
-import { update, generateData, isFormValid,resetFields} from '../../utils/Form/formActions';
+import { update,updateFields, generateData, isFormValid,resetFields, populateOptionFields} from '../../utils/Form/formActions';
 
 import { connect } from 'react-redux';
-import { getBrands, addBrand } from '../../../actions/products_actions';
+import { getBrands, addBrand, getMicroCategories } from '../../../actions/products_actions';
 
 class ManageBrands extends Component {
 
@@ -27,6 +27,22 @@ class ManageBrands extends Component {
                 touched: false,
                 validationMessage:''
             },
+            category: {
+                element: 'select',
+                value: '',
+                config:{
+                    label: 'Grocery category',
+                    name: 'category_input',
+                    options:[]
+                },
+                validation:{
+                    required: true
+                },
+                valid: false,
+                touched: false,
+                validationMessage:'',
+                showlabel: true
+            }
         }
     }
 
@@ -81,9 +97,22 @@ class ManageBrands extends Component {
             })
         }
     }
-
+    updateFields = (newFormdata) => {
+        this.setState({
+            formdata: newFormdata
+        })
+    }
     componentDidMount(){
-        this.props.dispatch(getBrands());
+        const formdata = this.state.formdata;
+
+        this.props.dispatch(getMicroCategories()).then( response => {
+            console.log("response", response);
+            console.log("props in here", this.props);
+            let subcategories = [];
+            response.payload.forEach((item)=>{subcategories.push(item)});
+            const newFormData = populateOptionFields(formdata,subcategories,'category');
+            this.updateFields(newFormData)
+        })
     }
 
 
@@ -96,7 +125,12 @@ class ManageBrands extends Component {
                     <div className="right">
                         
                     <form onSubmit={(event)=> this.submitForm(event)}>
-
+                         
+                    <FormField
+                            id={'category'}
+                            formdata={this.state.formdata.category}
+                            change={(element) => this.updateForm(element)}
+                        />
                          <FormField
                             id={'name'}
                             formdata={this.state.formdata.name}

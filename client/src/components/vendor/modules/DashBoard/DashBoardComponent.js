@@ -11,19 +11,42 @@ import CategoriesContainerMobile from "./Mobile/CategoriesContainerMobile";
 import { productList } from "../../productResponse";
 import Product from "../../Modals/Product";
 import SecondaryBannerWidget from "./Mobile/SecondaryBannerWidget";
+import { getProductsToShop }  from "../../../../actions/products_actions"; 
+import { connect } from "react-redux";
 
-
-export default class DashBoardComponent extends Component{
+class DashBoardComponent extends Component{
     constructor(props){
        super(props);
-       let productObjectList = productList.map(function(product){
-        return new Product(product.name,product.type,product.price,product.line_1,product.image_url,product.action,product.mrp,product.mrp, product.rating,product.unit,product.inventory,"INR",product.mrp,product.product_id,product.level1_category[0],product.offer,product.price - product.sbc_price,product.inventory);
-       });
        this.state={
-           productObjectList:productObjectList
+           productObjectList:[]
        };
-
     }
+
+    componentDidMount(){
+        this.props.dispatch(getProductsToShop()).then((response)=>{
+           let productObjectList =  response.payload.articles.map((article)=>{
+               return new Product(article.name, 
+                                  article.category.name,
+                                  article.price, 
+                                  article.description,
+                                  article.images[0].url,
+                                  productList[0].action, 
+                                  productList[0].rating,
+                                  productList[0].unit,
+                                  article.case,
+                                  "INR",
+                                  article.oldprice,
+                                  article._id,
+                                  article.category,
+                                  article.discount+"% OFF",
+                                  article.case,
+                                  article);
+
+            });
+            this.setState({productObjectList:productObjectList});
+        });
+    }
+
     render(){
         var { isMobileFlag,cart,updateCart } = this.props;
         var { productObjectList } = this.state;
@@ -64,3 +87,12 @@ export default class DashBoardComponent extends Component{
         }
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return {
+        products: state.products
+    }
+}
+
+export default connect(mapStateToProps)(DashBoardComponent);

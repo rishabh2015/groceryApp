@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import { addToCart, removeCartItem } from "../../../../../actions/user_actions";  
+import { connect } from "react-redux";
 
-
-export default class AddToCartComponent extends Component{
+class AddToCartComponent extends Component{
 
     constructor(props){
 
@@ -16,6 +17,13 @@ export default class AddToCartComponent extends Component{
     addItemToCart = () => {
     let { product, cart, updateCart } = this.props;
     cart.addItem(product);
+    this.props.dispatch(addToCart(product.dbProduct._id)).then((response)=>{
+        if(response.payload.isAuth==false)
+        {
+            window.location.href = "http://localhost:3000/seller/register_login";
+        }
+
+    });
     updateCart(cart);
     this.setState({checkFlag:true});
     }
@@ -23,6 +31,13 @@ export default class AddToCartComponent extends Component{
     removeItemFromCart = () => {
         let { product, cart, updateCart  } = this.props;
         cart.removeItem(product);
+        this.props.dispatch(removeCartItem(product.dbProduct._id)).then((response)=>{
+            if(response.payload.isAuth==false)
+            {
+                window.location.href = "http://localhost:3000/seller/register_login";
+            }
+    
+        });
         updateCart(cart);
         this.setState({checkFlag: true})
     }
@@ -55,3 +70,4 @@ export default class AddToCartComponent extends Component{
         }
     }
 }
+export default connect()(AddToCartComponent);

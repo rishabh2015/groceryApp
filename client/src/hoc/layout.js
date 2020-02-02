@@ -19,7 +19,7 @@ class Layout extends Component {
       this.state={
         isMobileFlag : isMobile,
         cart: cart,
-        updateCart: (cart)=>{console.log("in herer checking the satete"); this.state.cart=cart;this.setState({});}
+        updateCart: (cart)=>{console.log("in herer checking the satete", cart); this.state.cart=cart;this.setState({});}
       }
     }
     updateDimensions= () => {
@@ -49,7 +49,8 @@ class Layout extends Component {
 
     render() {
         let { cart, updateCart, isMobileFlag } = this.state;
-        if(window.location.href.indexOf("/vendor") != -1){
+        let { user } = this.props;
+        if(window.location.href.indexOf("/vendor") != -1 && window.location.href.indexOf("payment") == -1){
             return (
                 <div>
                         {this.props.children}
@@ -70,24 +71,23 @@ class Layout extends Component {
               
         }
         else{
+          console.log("rendered again");
           return(
             <div className="App">
-            <HeaderComponent cart={cart} updateCart={updateCart} isMobileFlag={isMobileFlag} />
+            <HeaderComponent user={user} cart={cart} updateCart={updateCart} isMobileFlag={isMobileFlag} />
             <VendorApp cart={cart} updateCart={updateCart} isMobileFlag={isMobileFlag} />
             </div>
             );
         }
-        // else{
-        // return (
-        //     <div>
-        //         <Header/>
-        //         <div className="page_container pd-0">
-        //             {this.props.children}
-        //         </div>
-        //     </div>
-        // );
-        // }
     }
 }
 
-export default Layout;
+function mapStateToProps(state){
+	return {
+		user: state.user
+		
+	}
+  }
+
+  
+export default connect(mapStateToProps)(Layout);

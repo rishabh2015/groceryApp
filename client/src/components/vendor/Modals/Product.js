@@ -1,7 +1,7 @@
 export default class Product{
     constructor(name="", type="", price="", description="", imgUrl="", prodDetailUrl="",
-                height="", width="", rating="", measuringUnit="", minQuantity="", currentCurrency="INR",
-                mrp="", prodId="", category="", percentDiscount="", moneyDiscount="", inventory=""){
+                 rating="", measuringUnit="", minQuantity="", currentCurrency="INR",oldPrice="",
+                 prodId="", category="", percentDiscount="",  inventory="", dbProduct=""){
         this.name = name;
         this.type = type;
         this.price = price;
@@ -10,16 +10,14 @@ export default class Product{
         this.description = description;
         this.imgUrl = imgUrl;
         this.prodDetailUrl = prodDetailUrl;
-        this.height = height;
-        this.width = width;
         this.rating = rating;
-        this.mrp = mrp;
+        this.oldPrice = oldPrice;
         this.measuringUnit = measuringUnit;
         this.minQuantity = minQuantity;
         this.currentCurrency = currentCurrency;
         this.percentDiscount = percentDiscount;
-        this.moneyDiscount = moneyDiscount;
         this.inventory = inventory;
+        this.dbProduct = dbProduct;
     }
 
     getPrice= () => {

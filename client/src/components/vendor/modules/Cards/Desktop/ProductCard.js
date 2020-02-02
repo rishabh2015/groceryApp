@@ -8,7 +8,8 @@ export default class ProductCard extends Component{
 
         let percentDiscount = product.getPercentDiscount();
         let productName = product.getName();
-        let price = product.getPrice();
+		let price = product.getPrice();
+		let oldprice = product.oldPrice;
         let prodId = product.getProdId();
         let moneyDiscount = product.getMoneyDiscount();
         let imgUrl = product.getImgUrl();
@@ -39,9 +40,9 @@ export default class ProductCard extends Component{
 											<div className="relative">
 												<div className="plp-product__price">
 													<div className="plp-product__price--container">
-														<div className="display--inline-block@mobile"><span className="plp-product__price--new" data-test-id="plp-product-new-price">{"₹"}{price-moneyDiscount}</span>
+														<div className="display--inline-block@mobile"><span className="plp-product__price--new" data-test-id="plp-product-new-price">{"₹"}{price}</span>
 														</div>
-														<div className="plp-product__price--old display--inline-block@mobile" data-test-id="plp-product-old-price">{"₹ "+price}</div>
+														<div className="plp-product__price--old display--inline-block@mobile" data-test-id="plp-product-old-price">{"₹ "+oldprice}</div>
 													</div>
 												</div>
                                                 <AddToCartComponent product={product} cart={cart} updateCart={updateCart} />
