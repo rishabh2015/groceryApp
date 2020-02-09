@@ -108,7 +108,7 @@ import { withRouter, Link } from "react-router-dom";
 		</a>
 	</div>
 	<div className="header__sub">
-		<div className="header__sub--offers" data-test-id="header-offers">Offers</div>
+		<div className="header__sub--offers" data-test-id="header-offers">Categories</div>
 		<div className="search">
 			<div role="combobox" aria-haspopup="listbox" aria-owns="react-autowhatever-search" aria-expanded="false" className="react-autosuggest__container">
 				<div className="search__box" data-test-id="search-box">

@@ -1,10 +1,20 @@
     import { addToCart, removeCartItem } from "../../../actions/user_actions.js"; 
+import ProdImg from "../../Product/prodImg.js";
+import Product from "./Product.js";
     
     
     export default class Cart {
-    constructor() {
+
+    constructor(cartProduct) {
+        let product = null;
+        
         this.productList = [];
         this.dbProductList = []; 
+        if(cartProduct)
+        {
+            product = new Product(cartProduct.name, cartProduct.category.name, cartProduct.price, cartProduct.description, cartProduct.images[0].url, "", cartProduct.cases, cartProduct.cases, cartProduct.cases, "INR", cartProduct.oldprice, cartProduct._id, cartProduct.category, cartProduct.discount,cartProduct.cases, cartProduct);
+            this.productList.push(product);         
+        }
     }
     
 

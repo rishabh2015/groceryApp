@@ -427,6 +427,27 @@ app.get('/api/users/removeimage',auth,admin,(req,res)=>{
     })
 })
 
+app.post('/api/users/getCartByUser',auth,(req,res)=>{   
+    User.findOne({_id: req.user._id},(err,doc)=>{
+        if(err) return res.json({success:false,err});
+        let cart = doc.cart;
+        let array = cart.map(item=>{
+        return mongoose.Types.ObjectId(item.id)
+        });
+        Product.
+        find({'_id':{ $in: array }}).
+        populate('brand').
+        populate('category').
+        populate('quantity').
+        exec((err,cartDetail)=>{
+        return res.status(200).json({
+        cartDetail,
+        cart
+        })
+        })
+    })
+})
+
 
 app.post('/api/users/addToCart',auth,(req,res)=>{
      
@@ -470,29 +491,65 @@ app.post('/api/users/addToCart',auth,(req,res)=>{
 
 
 app.get('/api/users/removeFromCart',auth,(req,res)=>{
-
-    User.findOneAndUpdate(
+    User.findOne(
         {_id: req.user._id },
-        { "$pull":
-            { "cart": {"id":mongoose.Types.ObjectId(req.query._id)} }
-        },
-        { new: true },
         (err,doc)=>{
-            let cart = doc.cart;
-            let array = cart.map(item=>{
-                return mongoose.Types.ObjectId(item.id)
-            });
-
-            Product.
-            find({'_id':{ $in: array }}).
-            populate('brand').
-            populate('category').
-            exec((err,cartDetail)=>{
-                return res.status(200).json({
-                    cartDetail,
-                    cart
-                })
+    
+            doc.cart.forEach((item)=>{
+                if(item.id == req.query._id && item.quantity > 1){
+                    User.findOneAndUpdate(
+                        {_id: req.user._id, "cart.id":mongoose.Types.ObjectId(req.query._id)},
+                        { $inc: { "cart.$.quantity":-1 } },
+                        { new:true },
+                        (err, doc)=>{
+            
+                            if(err) return res.json({success:false,err});
+                            let cart = doc.cart;
+                            let array = cart.map(item=>{
+                            return mongoose.Types.ObjectId(item.id)
+                            });
+                            Product.
+                            find({'_id':{ $in: array }}).
+                            populate('brand').
+                            populate('category').
+                            exec((err,cartDetail)=>{
+                            return res.status(200).json({
+                            cartDetail,
+                            cart
+                            })
+                            })
+                        }
+                    )                   
+                }
+                else if(item.id == req.query._id)
+                {
+                    User.findOneAndUpdate(
+                        {_id: req.user._id},
+                        { $pull:{ cart:{
+                            id: mongoose.Types.ObjectId(req.query._id),
+                           } }},
+                        { new: true },
+                        (err,doc)=>{
+                            if(err) return res.json({success:false,err});
+                            let cart = doc.cart;
+                            let array = cart.map(item=>{
+                            return mongoose.Types.ObjectId(item.id)
+                            });
+                            Product.
+                            find({'_id':{ $in: array }}).
+                            populate('brand').
+                            populate('category').
+                            exec((err,cartDetail)=>{
+                            return res.status(200).json({
+                            cartDetail,
+                            cart
+                            })
+                            })
+                        }
+                    )
+                }
             })
+            
         }
     );
 })
@@ -503,6 +560,7 @@ app.post('/api/users/successBuy',auth,(req,res)=>{
 
     // user history
     req.body.cartDetail.forEach((item)=>{
+        console.log("item quantytyt", item);
         history.push({
             dateOfPurchase: Date.now(),
             name: item.name,
@@ -523,8 +581,8 @@ app.post('/api/users/successBuy',auth,(req,res)=>{
     }
     transactionData.data = req.body.paymentData;
     transactionData.product = history;
-    console.log("transactionData", transactionData);
-    console.log("history", history);
+    //console.log("transactionData", transactionData);
+    //console.log("history", history);
         
     User.findOneAndUpdate(
         { _id: req.user._id },
@@ -541,11 +599,12 @@ app.post('/api/users/successBuy',auth,(req,res)=>{
                     products.push({id:item.id,quantity:item.quantity})
                  })
               
-                async.eachSeries(products,(item,callback)=>{ 
+                async.eachSeries(products,(item,callback)=>{
+                    console.log("item quantity", item.quantity, typeof item.quantity, item) 
                     Product.update(
                         {_id: item.id},
                         { $inc:{
-                            "sold": item.quantity
+                            "sold": Number(item.quantity)
                         }},
                         {new:false},
                         callback

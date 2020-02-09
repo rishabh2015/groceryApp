@@ -1,15 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getCartItems } from "../../../../actions/user_actions";
+import { getCartItems, getCartByUser } from "../../../../actions/user_actions";
 import { Link } from "react-router-dom";
 
 
  class CartModalComponent extends Component{
 
 
-    componentDidiUpdate(){
 
-        this.props.dispatch(getCartItems());
+    removeProduct = (product, cart) =>{
+        cart.removeItem(product);
+        this.setState({});
     }
 
 
@@ -40,8 +41,7 @@ import { Link } from "react-router-dom";
        <div class="product-unit" data-test-id="product-unit">1 Unit</div>
        <div class="product-items">
        <div class="add-to-cart add-to-cart--cart-modal">
-       <button onClick={()=>{cart.removeItem(product)}} class="add-to-cart__quantity" data-test-id="product-quantity"><span class="add-to-cart__text">Remove Product</span>
-       </button>
+       <button onClick={()=>{console.log("product inhere", product);this.removeProduct(product, cart)}} class="add-to-cart__quantity" data-test-id="product-quantity">Remove Product</button>
        </div><span class="new-price">{'₹'+productPrice}</span><span class="old-price">{'₹'+productOldPrice}</span>
        <div class="total-price float-right" data-test-id="total-price">{'₹'+productPrice}</div>
        </div>

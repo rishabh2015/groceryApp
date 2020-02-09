@@ -1,25 +1,48 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getCartItems } from "../../../../actions/user_actions";
+import { getCartItems, onSuccessBuy, getCartByUser } from "../../../../actions/user_actions";
 
 
 
 class PaymentComponent extends Component{
-
-
-
-
+    
     constructor(props){
         super(props);
-        let { cart } = props;
-        if(cart.productList.length == 0){
-         this.props.dispatch(getCartItems()).then((response)=>{
-             console.log("cart response",response);
-         })
+        let { cart, user } = props;
+        this.state ={
+            showSuccess: false
+        }
+        if(!user)
+        {
+            let userdata  = JSON.parse(window.sessionStorage.getItem("userData"));
+            this.state = {
+                userdata: userdata
+            };
+            console.log("payment user data", userdata);
+        }   
         }
 
-
-    }
+        transactionError = (data) => {
+            console.log('Paypal error')
+        }
+    
+        transactionCanceled = () => {
+            console.log('Transaction cancled')
+        }
+    
+        transactionSuccess = (data) => {
+                this.props.dispatch(onSuccessBuy({
+                    cartDetail: this.props.cart.dbCartDetail,
+                    paymentData: [{"paymentMethod":"COD"}]
+                })).then(()=>{
+                    if(this.props.user.successBuy){
+                        this.setState({
+                            showTotal: false,
+                            showSuccess: true
+                        })
+                    }
+                })            
+        }
 
     getProductDiv = ()=> {
         let { cart } = this.props;
@@ -88,6 +111,17 @@ class PaymentComponent extends Component{
 
         let cartInvoiceDiv = this.getPaymentInvoice();
         let productCartDiv = this.getProductDiv();
+        let { showSuccess } = this.state;
+        if(showSuccess){
+            return(<div class="success-page">
+            <img  src="http://share.ashiknesin.com/green-checkmark.png" class="center" alt="" />
+           <h2>Payment Successful !</h2>
+           <p>We are delighted to inform you that we received your payments</p>
+           <a href="#" class="btn-view-orders">View Orders</a>
+           <a href="/">Continue Shopping</a>
+         </div>)
+        }
+        else{
         return(
             <div>
     <div class="checkout-wrapper wrapper">
@@ -101,39 +135,24 @@ class PaymentComponent extends Component{
                             </div>
                             <div class="react-tabs" data-tabs="true">
                                 <ul class="react-tabs__tab-list" role="tablist">
-                                    <li class="react-tabs__tab react-tabs__tab--selected" role="tab" id="react-tabs-28" aria-selected="true" aria-disabled="false" aria-controls="react-tabs-29" tabindex="0">Wallet</li>
+                                    <li class="react-tabs__tab react-tabs__tab--selected" role="tab" id="react-tabs-28" aria-selected="true" aria-disabled="false" aria-controls="react-tabs-29" tabindex="0">Payment Options</li>
                                 </ul>
                                 <div class="react-tabs__tab-panel react-tabs__tab-panel--selected" role="tabpanel" id="react-tabs-29" aria-labelledby="react-tabs-28">
                                     <div class="soft--bottom">
                                         <div class="payment-wallets">
                                             <ul class="wallet-opt-list list-unstyled cards-list">
-                                                <li class="cards-list__item" data-test-id="wallet">
+                                                <li class="cards-list__item pdr-15" data-test-id="wallet">
                                                     <label for="Paytm" class="wallet-opt card-selection" data-test-id="Paytm">
                                                         <input id="Paytm" type="radio" class="radio" checked=""/><span class="radio-element"></span>
-                                                        <div class="display--inline-block wallet-type"><img alt="Paytm" class="wallet-type__img" src="//cdn.grofers.com/app/uploads/payments/paytm.png"/></div>
-                                                        <div class="display--inline-block card-selection__details"><span class="wallet-opt-list__display-name weight--semibold">Paytm</span><span></span></div>
-                                                    </label>
-                                                </li>
-                                                <li class="cards-list__item" data-test-id="wallet">
-                                                    <label for="MobiKwik" class="wallet-opt card-selection" data-test-id="MobiKwik">
-                                                        <input id="MobiKwik" type="radio" class="radio"/><span class="radio-element"></span>
-                                                        <div class="display--inline-block wallet-type"><img alt="MobiKwik" class="wallet-type__img" src="//cdn.grofers.com/app/uploads/payments/mobikwik_wallet.png"/></div>
-                                                        <div class="display--inline-block card-selection__details"><span class="wallet-opt-list__display-name weight--semibold">MobiKwik</span><span></span><span class="display--block font-size--small push__half--top text--success">Up to Rs.200 Mobikwik SuperCash| Min Txn Rs. 1200| Valid b/w 1st-13th Feb| Payment to be done via MobiKwik Wallet | T&amp;C Apply</span></div>
-                                                    </label>
-                                                </li>
-                                                <li class="cards-list__item" data-test-id="wallet">
-                                                    <label for="Airtel Money" class="wallet-opt card-selection" data-test-id="Airtel Money">
-                                                        <input id="Airtel Money" type="radio" class="radio"/><span class="radio-element"></span>
-                                                        <div class="display--inline-block wallet-type"><img alt="Airtel Money" class="wallet-type__img" src="//cdn.grofers.com/images/airtelmoney.png"/></div>
-                                                        <div class="display--inline-block card-selection__details"><span class="wallet-opt-list__display-name weight--semibold">Airtel Money</span><span></span></div>
+                                                        {/* <div class="display--inline-block wallet-type"><img alt="Paytm" class="wallet-type__img" src="//cdn.grofers.com/app/uploads/payments/paytm.png"/></div> */}
+                                                        <div class="display--inline-block card-selection__details"><span class="wallet-opt-list__display-name weight--semibold">Cash On Delivery</span><span></span></div>
                                                     </label>
                                                 </li>
                                             </ul>
                                         </div>
                                         <div class="payment-btn-holder">
-                                            <button class="btn btn--full" data-test-id="place-order-button">Pay Now</button>
+                                            <button onClick={this.transactionSuccess} class="btn btn--full" data-test-id="place-order-button">Confirm Order</button>
                                         </div>
-                                        <div class="center-aligned font-size--small push--bottom">You will be redirected to wallet’s website to authorize payment</div>
                                     </div>
                                 </div>
                                 <div class="react-tabs__tab-panel" role="tabpanel" id="react-tabs-31" aria-labelledby="react-tabs-30"></div>
@@ -164,6 +183,14 @@ class PaymentComponent extends Component{
 </div>
         );
     }
+    }
 }
 
-export default connect()(PaymentComponent);
+function mapStateToProps(state){
+	return {
+		user: state.user
+		
+	}
+  }
+
+export default connect(mapStateToProps)(PaymentComponent);

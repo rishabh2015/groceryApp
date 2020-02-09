@@ -24,6 +24,7 @@ class DashBoardComponent extends Component{
 
     componentDidMount(){
         this.props.dispatch(getProductsToShop()).then((response)=>{
+            console.log('products oin here',response);
            let productObjectList =  response.payload.articles.map((article)=>{
                return new Product(article.name, 
                                   article.category.name,

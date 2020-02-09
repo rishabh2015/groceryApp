@@ -7,7 +7,7 @@ import { isMobile } from "react-device-detect";
 import VendorApp from '../components/vendor/App';
 import HeaderComponent from '../components/vendor/modules/header/HeaderComponent';
 import { connect } from "react-redux";  
-
+import { getCartByUser } from "../actions/user_actions";
 
 class Layout extends Component {
 
@@ -15,13 +15,39 @@ class Layout extends Component {
     constructor(props)
     {
       super(props);
-      let cart = new Cart();
+    
+      this.getUserCart().then((cart)=>{
+        console.log("cart in here", cart);
+        delete this.state.cart;
+      this.setState({cart: cart});
+
+      });
       this.state={
         isMobileFlag : isMobile,
-        cart: cart,
-        updateCart: (cart)=>{console.log("in herer checking the satete", cart); this.state.cart=cart;this.setState({});}
+        cart: new Cart(),
+        updateCart: (cart)=>{ this.state.cart=cart;this.setState({});}
       }
+      
     }
+
+    getUserCart = async() =>{
+      let cart = null;
+      let cartDetail = [];
+      await this.props.dispatch(getCartByUser()).then((response)=>{
+           if(response.payload && response.payload.cart.length > 0)
+           {
+              cart = new Cart(response.payload.cartDetail[0]);
+              cartDetail.push({...response.payload.cartDetail[0],...response.payload.cart[0]});
+              cart.dbCartDetail = cartDetail;
+           }
+           else{
+             cart = new Cart();
+           }
+    });
+    return  cart;
+    }
+
+
     updateDimensions= () => {
       var mobileFlag = (navigator.userAgent.match(/Android/i)
       || navigator.userAgent.match(/webOS/i)

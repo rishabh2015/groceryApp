@@ -39,7 +39,7 @@ export default  class BestSellingItems extends Component{
             dots: false,
             infinite: true,
             speed: 500,
-            slidesToShow: 5,
+            slidesToShow: 2,
             slidesToScroll: 1,
             nextArrow: <CarouselNextArrow />,
             prevArrow: <CarouselPrevArrow />
@@ -53,14 +53,6 @@ export default  class BestSellingItems extends Component{
 		        <div>
 			    <div className="slick-slider slick-initialized" dir="ltr">
                     <Slider {...settings} >
-                   
-					    {productHTML}
-                        {productHTML}
-                        {productHTML}
-                        {productHTML}
-                        {productHTML}
-                        {productHTML}
-                        {productHTML}
                         {productHTML}
 				    </Slider>
                 </div>

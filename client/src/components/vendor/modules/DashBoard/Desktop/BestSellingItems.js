@@ -27,7 +27,8 @@ function CarouselNextArrow(props) {
 export default  class BestSellingItems extends Component{
 
 	getProductsHTML = () =>{
-		var { productList, cart, updateCart } = this.props;
+        var { productList, cart, updateCart } = this.props;
+        console.log("productList length", productList, productList.length);
 		let productHML = productList.map(function(product, index){
 			return (<ProductCard product={product} key={index} cart={cart} updateCart={updateCart} />)
 		});
@@ -41,8 +42,8 @@ export default  class BestSellingItems extends Component{
             dots: false,
             infinite: true,
             speed: 500,
-            slidesToShow: 5,
-            slidesToScroll: 1,
+            slidesToShow: 2,
+            slidesToScroll: 0,
             nextArrow: <CarouselNextArrow isMobileFlag={isMobileFlag} />,
             prevArrow: <CarouselPrevArrow isMobileFlag={isMobileFlag} />
           };
@@ -55,14 +56,6 @@ export default  class BestSellingItems extends Component{
 		        <div>
 			    <div className="slick-slider slick-initialized" dir="ltr">
                     <Slider {...settings} >
-						{productHTML}
-						{productHTML}
-						{productHTML}
-						{productHTML}
-						{productHTML}
-						{productHTML}
-						{productHTML}
-						{productHTML}
 						{productHTML}
 
                     </Slider>

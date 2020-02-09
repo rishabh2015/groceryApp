@@ -23,3 +23,4 @@ export const GET_PRODUCT_DETAIL = 'get_product_detail';
 export const CLEAR_PRODUCT_DETAIL = 'clear_product_detail';
 export const GET_SUBCATERIES = "get_subcategories";
 export const GET_MICRO_CATEGORIES = "get_micro_subcategories";
+export const GET_CART_BY_USER = "get_cart_by_user";

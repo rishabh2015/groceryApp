@@ -9,7 +9,8 @@ import {
     REMOVE_CART_ITEM_USER,
     ON_SUCCESS_BUY_USER,
     UPDATE_DATA_USER,
-    CLEAR_UPDATE_USER_DATA
+    CLEAR_UPDATE_USER_DATA,
+    GET_CART_BY_USER
 } from './types';
 
 import { USER_SERVER, PRODUCT_SERVER } from '../components/utils/misc';
@@ -28,7 +29,8 @@ export function registerUser(dataToSubmit){
 
 export function loginUser(dataToSubmit){
     const request = axios.post(`${USER_SERVER}/login`,dataToSubmit)
-                .then(response => response.data);
+                .then(response => {
+                    return response.data});
 
     return {
         type: LOGIN_USER,
@@ -39,7 +41,7 @@ export function loginUser(dataToSubmit){
 export function auth(){
 
     const request = axios.get(`${USER_SERVER}/auth`)
-    .then(response =>{console.log("auth response", response.data);return response.data});
+    .then(response =>{window.sessionStorage.setItem("userData", JSON.stringify(response.data));return response.data});
 
     return {
         type: AUTH_USER,
@@ -50,7 +52,8 @@ export function auth(){
 
 
 export function logoutUser(){
-
+    
+    window.sessionStorage.removeItem("userData");
     const request = axios.get(`${USER_SERVER}/logout`)
     .then(response => response.data);
 
@@ -61,6 +64,15 @@ export function logoutUser(){
 
 }
 
+export function getCartByUser(){
+    const request = axios.post( `${USER_SERVER}/getCartByUser`)
+    .then(response => response.data)
+
+    return {
+        type: GET_CART_BY_USER,
+        payload: request
+    }
+}
 export function addToCart(_id){
 
     const request = axios.post( `${USER_SERVER}/addToCart?productId=${_id}`)
